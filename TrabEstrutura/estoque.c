@@ -28,7 +28,7 @@ void menu(Lista *l,Medicamento m){
 
         case 1:
             system("cls");
-            cadastrarRegistro();
+            //CriaMedicamento();
             system("pause");
             opcao = 0;
             break;
@@ -36,7 +36,7 @@ void menu(Lista *l,Medicamento m){
             system("cls");
             printf("Digite o codigo do medicamento que deseja consultar: ");
             scanf("%d", &codigo);
-            consultarRegistro(codigo);
+            //consultarRegistro(codigo);
             system("pause");
             opcao = 0;
             break;
@@ -44,7 +44,7 @@ void menu(Lista *l,Medicamento m){
             system("cls");
             printf("Digite o codigo do medicamento que deseja alterar: ");
             scanf("%d", &codigo);
-            alterarRegistro(codigo);
+            //alterarRegistro(codigo);
             system("pause");
             opcao = 0;
             break;
@@ -52,13 +52,13 @@ void menu(Lista *l,Medicamento m){
             system("cls");
             printf("Digite o codigo do medicamento que deseja remover: ");
             scanf("%d", &codigo);
-            removerRegistro(codigo);
+            //removerRegistro(codigo);
             system("pause");
             opcao = 0;
             break;
         case 5:
             system("cls");
-            exibirRegistros();
+            //exibirRegistros();
             system("pause");
             opcao = 0;
             break;
