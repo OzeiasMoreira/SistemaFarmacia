@@ -122,11 +122,57 @@ Lista* RetiraListaMedicamento(FILE* fp,Lista* l,int id_medicamento){
 }
 
 int VerificaListaMedicamento(FILE* fp,Lista * p,int id_medicamento){
+    int controle = 0; // variavel de controle
+    
+    // Percorre a lista
+    for(Lista *aux = p;aux != NULL;aux = aux->prox){
+        if (aux->m->codigo == id_medicamento) // verifica se o codigo é igual o id do medicamento
+        {
+            fprintf(fp,"Medicamentp encontrado! %s %d %.2f %d %d %d", 
+            aux->m->nome,aux->m->codigo,aux->m->valor,aux->m->data,aux->m->data[0],aux->m->data[1],aux->m->data[2]);
+            controle = 1; // se o medicamento for encontrado á variavel de controle é igual a 1
+            break; // sai do loop se o medicamento for encontrado
+        }
+        
+    }
 
+    // Se o medicamento não for encontrado, escreve no arquivo
+    if(controle == 0){
+        fprintf(fp,"Medicamento não encontrado!\n");
+    }
+
+    return controle; // retorna a variavel de controle
 }
 
 int VerificaListaValidade(FILE* fp,Lista* p,int *data){
+    int controle = 0;// Variavel de controle
+    // Percorre a lista
+    for (Lista *aux = p; aux != NULL; aux = aux->prox) {
+        if (aux->m->data[2] < data[2]) { // Verifica se o ano de validade é anterior ao ano atual
+        fprintf(fp, "Medicamento %s %d está vencido.\n", aux->m->nome, aux->m->codigo);
+        controle = 1; // Se for encontrado a variavel de controle fica igual a 1;
 
+        } else if (aux->m->data[2] == data[2]) // Se o ano da validade é igual o ano atual,verifica o mes. {
+            if (aux->m->data[1] < data[1]) {
+            fprintf(fp, "Medicamento %s %d está vencido.\n", aux->m->nome, aux->m->codigo);
+            controle = 1;
+
+        } else if (aux->m->data[1] == data[1])  { // Se o mes é igual ao mes atual,verifica o dia
+            if (aux->m->data[0] < data[0]) {
+                fprintf(fp, "Medicamento %s %d está vencido.\n", aux->m->nome, aux->m->codigo);
+                controle = 1;
+            }
+        }
+    }
+
+    // se nenhum medicamento vencido for encontrado
+    if (controle == 0)
+    {
+        fprintf(fp,"Medicamento não encontrado na lista.\n");   
+    }
+
+    return controle;
+    
 }
 
 void imprimeListaMedicamentos(FILE* fp,Lista* p){
