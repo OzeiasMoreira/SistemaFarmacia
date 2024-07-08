@@ -1,36 +1,32 @@
+#ifndef ESTOQUE_H
+#define ESTOQUE_H
+
 #include <stdio.h>
 
-// Definição das estruturas
+// Estrutura do medicamento
+typedef struct {
+    char nome[20];
+    int codigo;
+    float valor;
+    int data[3]; // data[0] = dia, data[1] = mês, data[2] = ano
+} Medicamento;
 
-// Estrutura que define o medicamamento
-typedef struct medicamento Medicamento;
+// Estrutura do nó da lista ligada
+typedef struct lista {
+    Medicamento *m;
+    struct lista *prox;
+} Lista;
 
-// Estrutura que defina a lista
-typedef struct lista Lista;
+// Protótipos das funções
+Medicamento *CriaMedicamento(char *nome, int codigo, float valor, int data[]);
+Lista *CriaLista();
+Lista *InsereListaMedicamento(Lista *l, Medicamento *m);
+Lista *RetiraListaMedicamento(Lista *l, int codigo);
+void LiberaLista(Lista *l);
+void ImprimeListaMedicamentos(Lista *l, FILE *saida);
+int VerificaListaValidade(Lista *l, int data[]);
+int VerificaListaMedicamento(Lista *l, int codigo);
+Lista *OrdenaListaValor(Lista *l);
+Lista *OrdenaListaVencimento(Lista *l);
 
-// Função para criar um novo medicamento
-Medicamento* CriaMedicamento (FILE *fp,char* nome, int codigo, float valor, int data_de_validade[3]);
-
-// Função para inserir um medicamento na lista
-Lista* InsereListaMedicamento(FILE *fp, Lista *l, Medicamento *m);
-
-// Função para retirar um medicamento da lista
-Lista* RetiraListaMedicamento(FILE *fp, Lista *l, int id_medicamento);
-
-// Função para verificar se um medicamento está na lista
-int VerificaListaMedicamento(FILE *fp, Lista *p, int id_medicamento); 
-
-// Função para verificar se há medicamentos vencidos na lista
-int VerificaListaValidade(FILE *fp, Lista *p, int *data);
-
-// Função para imprimir a lista de medicamentos
-void imprimeListaMedicamentos(FILE *fp, Lista *p);
-
-// Função para ordenar a lista de medicamentos
-Lista* OrdenaListaValor(Lista *p); 
-
-// Função para ordenar a lista de medicamentos pela data de validade
-Lista* OrdenaListaVencimento(Lista *p); 
-
-// Função para liberar a memória alocada para um medicamento
-void LiberaMemoria(Medicamento *m);
+#endif // ESTOQUE_H

@@ -3,129 +3,90 @@
 #include <string.h>
 #include "estoque.h"
 
-// Função para ler medicamentos do arquivo de entrada
-Lista* LerMedicamentos(char *arquivo, Lista *l) {
-    FILE *fp = fopen("entrada.txt", "r");
-    if (fp == NULL) {
-        printf("Erro ao abrir o arquivo de entrada!\n");
-        exit(1);
-    }
-
-    char nome[20];
-    int codigo;
-    float valor;
-    int data[3];
-    Medicamento *m;
-
-    while (fscanf(fp, "%s %d %f %d %d %d", nome, &codigo, &valor, &data[0], &data[1], &data[2]) != EOF) {
-        m = CriaMedicamento(fp, nome, codigo, valor, data);
-        l = InsereListaMedicamento(NULL, l, m);
-    }
-
-    fclose(fp);
-    return l;
-}
-
-// Função menu com todas as opções e chamadas apropriadas
-void menu(Lista *l) {
-    FILE *fp = fopen("saida.txt", "a");
-    if (fp == NULL) {
-        printf("Erro ao abrir o arquivo de saída!\n");
-        exit(1);
-    }
-
-    int opcao = 0;
-    int codigo;
-    int data[3];
-    char nome[20];
-    float valor;
-    Medicamento *m;
-
-    while (1) {
-        system("cls");
-        printf("=============================================\n");
-        printf("               BEM-VINDO\n");
-        printf("=============================================\n");
-        printf("1 - Cadastrar medicamento\n");
-        printf("2 - Consultar medicamento\n");
-        printf("3 - Remover medicamento\n");
-        printf("4 - Verificar validade\n");
-        printf("5 - Exibir todos medicamentos\n");
-        printf("6 - Ordenar por valor\n");
-        printf("7 - Ordenar por validade\n");
-        printf("8 - Sair\n");
-        printf("=============================================\n");
-        printf("Digite a opcao desejada: ");
-        scanf("%d", &opcao);
-
-        switch (opcao) {
-            case 1:
-                system("cls");
-                printf("Digite o nome do medicamento: ");
-                scanf("%s", nome);
-                printf("Digite o codigo do medicamento: ");
-                scanf("%d", &codigo);
-                printf("Digite o valor do medicamento: ");
-                scanf("%f", &valor);
-                printf("Digite a data de validade (dd mm aaaa): ");
-                scanf("%d %d %d", &data[0], &data[1], &data[2]);
-                m = CriaMedicamento(fp, nome, codigo, valor, data);
-                l = InsereListaMedicamento(fp, l, m);
-                system("pause");
-                break;
-            case 2:
-                system("cls");
-                printf("Digite o codigo do medicamento que deseja consultar: ");
-                scanf("%d", &codigo);
-                VerificaListaMedicamento(fp, l, codigo);
-                system("pause");
-                break;
-            case 3:
-                system("cls");
-                printf("Digite o codigo do medicamento que deseja remover: ");
-                scanf("%d", &codigo);
-                l = RetiraListaMedicamento(fp, l, codigo);
-                system("pause");
-                break;
-            case 4:
-                system("cls");
-                printf("Digite a data atual (dd mm aaaa): ");
-                scanf("%d %d %d", &data[0], &data[1], &data[2]);
-                VerificaListaValidade(fp, l, data);
-                system("pause");
-                break;
-            case 5:
-                system("cls");
-                imprimeListaMedicamentos(fp, l);
-                system("pause");
-                break;
-            case 6:
-                system("cls");
-                l = OrdenaListaValor(l);
-                fprintf(fp, "Lista ordenada por valor.\n");
-                system("pause");
-                break;
-            case 7:
-                system("cls");
-                l = OrdenaListaVencimento(l);
-                fprintf(fp, "Lista ordenada por validade.\n");
-                system("pause");
-                break;
-            case 8:
-                printf("Finalizando... \n");
-                fclose(fp);
-                exit(0);
-            default:
-                printf("Opcao invalida! \n");
-                system("pause");
-                break;
+// Função para processar os comandos do arquivo de entrada
+void processaComandos(FILE *entrada, FILE *saida, Lista *l) {
+    char comando[20];
+    while (fscanf(entrada, "%s", comando) != EOF) {
+        if (strcmp(comando, "MEDICAMENTO") == 0) {
+            char nome[20];
+            int codigo, data[3];
+            float valor;
+            fscanf(entrada, "%s %d %f %d %d %d", nome, &codigo, &valor, &data[0], &data[1], &data[2]);
+            Medicamento *m = CriaMedicamento(nome, codigo, valor, data);
+            l = InsereListaMedicamento(l, m);
+            fprintf(saida, "MEDICAMENTO %s %d ADICIONADO\n", nome, codigo);
+        } else if (strcmp(comando, "RETIRA") == 0) {
+            int codigo;
+            fscanf(entrada, "%d", &codigo);
+            l = RetiraListaMedicamento(l, codigo);
+            fprintf(saida, "MEDICAMENTO %d RETIRADO\n", codigo);
+        } else if (strcmp(comando, "IMPRIME_LISTA") == 0) {
+            ImprimeListaMedicamentos(l, saida);
+        } else if (strcmp(comando, "ATUALIZA_PRECO") == 0) {
+            int codigo;
+            float novo_valor;
+            fscanf(entrada, "%d %f", &codigo, &novo_valor);
+            Lista *p = l;
+            while (p != NULL) {
+                if (p->m->codigo == codigo) {
+                    p->m->valor = novo_valor;
+                    fprintf(saida, "PRECO ATUALIZADO %s %d %.2f\n", p->m->nome, codigo, p->m->valor);
+                    break;
+                }
+                p = p->prox;
+            }
+            if (p == NULL) {
+                fprintf(saida, "MEDICAMENTO NAO ENCONTRADO NA LISTA\n");
+            }
+        } else if (strcmp(comando, "VERIFICA_VALIDADE") == 0) {
+            int data[3];
+            fscanf(entrada, "%d %d %d", &data[0], &data[1], &data[2]);
+            if (VerificaListaValidade(l, data)) {
+                fprintf(saida, "MEDICAMENTO VENCIDO ENCONTRADO NA LISTA\n");
+            } else {
+                fprintf(saida, "MEDICAMENTO VENCIDO NAO ENCONTRADO NA LISTA\n");
+            }
+        } else if (strcmp(comando, "VERIFICA_LISTA") == 0) {
+            int codigo;
+            fscanf(entrada, "%d", &codigo);
+            if (VerificaListaMedicamento(l, codigo)) {
+                fprintf(saida, "MEDICAMENTO %d ENCONTRADO NA LISTA\n", codigo);
+            } else {
+                fprintf(saida, "MEDICAMENTO %d NAO ENCONTRADO NA LISTA\n", codigo);
+            }
+        } else if (strcmp(comando, "ORDENA_LISTA_VALOR") == 0) {
+            l = OrdenaListaValor(l);
+        } else if (strcmp(comando, "ORDENA_LISTA_VALIDADE") == 0) {
+            l = OrdenaListaVencimento(l);
+        } else if (strcmp(comando, "FIM") == 0) {
+            break;
         }
     }
 }
 
-int main(void) {
-    Lista *l = CriaLista();
-    l = LerMedicamentos("entrada.txt", l); // Lê medicamentos do arquivo de entrada
-    menu(l);
+// Função principal
+int main() {
+    FILE *entrada = fopen("entrada.txt", "r");
+    if (!entrada) {
+        printf("Erro ao abrir o arquivo de entrada.\n");
+        return 1;
+    }
+
+    FILE *saida = fopen("saida.txt", "w");
+    if (!saida) {
+        printf("Erro ao abrir o arquivo de saída.\n");
+        fclose(entrada);
+        return 1;
+    }
+
+    Lista *estoque = CriaLista();
+
+    processaComandos(entrada, saida, estoque);
+
+    LiberaLista(estoque);
+
+    fclose(entrada);
+    fclose(saida);
+
     return 0;
 }
