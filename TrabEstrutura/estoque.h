@@ -17,16 +17,34 @@ typedef struct lista {
     struct lista *prox;
 } Lista;
 
-// Protótipos das funções
+// Cria medicamento
 Medicamento *CriaMedicamento(char *nome, int codigo, float valor, int data[]);
+
+// Cria lista vazia
 Lista *CriaLista();
+
+// Insere na medicamentos na lista
 Lista *InsereListaMedicamento(Lista *l, Medicamento *m);
+
+// Retira medicamentos da lista
 Lista *RetiraListaMedicamento(Lista *l, int codigo);
+
+// Libera a lista
 void LiberaLista(Lista *l);
+
+// Imprime a lista
 void ImprimeListaMedicamentos(Lista *l, FILE *saida);
+
+// Verifica a validade dos medicamentos
 int VerificaListaValidade(Lista *l, int data[]);
+
+// Verifica se há medicamento na lista
 int VerificaListaMedicamento(Lista *l, int codigo);
+
+// Ordena a lista por valor do medicamento
 Lista *OrdenaListaValor(Lista *l);
+
+// Ordena a lista por data de vencimento do medicamento
 Lista *OrdenaListaVencimento(Lista *l);
 
 #endif // ESTOQUE_H

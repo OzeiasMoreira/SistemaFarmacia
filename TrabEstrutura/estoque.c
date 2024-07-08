@@ -8,7 +8,7 @@ Medicamento *CriaMedicamento(char *nome, int codigo, float valor, int data[]) {
     // Aloca memoria para um novo medicamento
     Medicamento *m = (Medicamento *)malloc(sizeof(Medicamento));
     if (m == NULL) {
-        printf("Erro: não foi possível alocar memória para o medicamento.\n");
+        printf("Erro: não foi possível alocar memória.\n");
         exit(1);
     }
     // atribuição de variaveis
@@ -35,36 +35,36 @@ Lista *InsereListaMedicamento(Lista *l, Medicamento *m) {
         exit(1);
     }
     novo->m = m; // atribui medicamento ao novo campo m
-    novo->prox = l; // define a nova lista como atual
+    novo->prox = l; // define a nova lista como p
     return novo; 
 }
 
 // Função para retirar um medicamento da lista
 Lista *RetiraListaMedicamento(Lista *l, int codigo) {
-    Lista *ant = NULL; // ponteiro para anterior
+    Lista *ant = NULL; // ponteiro para ant
     Lista *p = l; // ponteiro auxpara percorrer a lista
 
     // percorrendo a lista
     while (p != NULL && p->m->codigo != codigo) {
-        ant = p; // guarda o estado atual como anterior
+        ant = p; // guarda o estado p como ant
         p = p->prox; // avança para o proximo
     }
 
     // caso não encontre
     if (p == NULL) {
-        printf("Erro: medicamento não encontrado na lista.\n");
+        printf("Erro: medicamento não encontrado.\n");
         return l;
     }
 
     // caso encontre
-    if (ant == NULL) { // Remove o primeiro elemento se anterior for null
-        l = p->prox; // atualiza o inicio para o proximo
+    if (ant == NULL) { // Remove o primeiro elemento se ant for null
+        l = p->prox; // piza o inicio para o proximo
     } else {
-        ant->prox = p->prox; // liga o estado anterior ao proximo do estado atual
+        ant->prox = p->prox; // liga o estado ant ao proximo do estado p
     }
 
     free(p->m); // libera a memoria do medicamento dentro da lista
-    free(p); // libera memoria do estado atual
+    free(p); // libera memoria do estado p
     return l; 
 }
 
@@ -132,65 +132,67 @@ int VerificaListaMedicamento(Lista *l, int codigo) {
     return 0; // Medicamento não encontrado
 }
 
-// Função para ordenar a lista pelo valor dos medicamentos (bubble sort)
+// Função para ordenar a lista pelo valor dos medicamentos - bubblesort
 Lista *OrdenaListaValor(Lista *l) {
+    // lista vazia ou com apenas um elemento(n precisa ordenar)
     if (l == NULL || l->prox == NULL) {
-        return l;
+        return l; // retorna a lista
     }
 
-    int trocou;
-    Lista *atual;
-    Lista *anterior = NULL;
+    int t; // variavel de troca
+    Lista *p; // Ponteiro para percorrer a lista
+    Lista *ant = NULL; // Ponteiro para marcar o final
 
     do {
-        trocou = 0;
-        atual = l;
+        t = 0; // inicializa a variarel de troca como 0
+        p = l; // percorre a lista do inicio
 
-        while (atual->prox != anterior) {
-            if (atual->m->valor > atual->prox->m->valor) {
-                // Troca os medicamentos
-                Medicamento *temp = atual->m;
-                atual->m = atual->prox->m;
-                atual->prox->m = temp;
-                trocou = 1;
+        // percorre a lista ate onde ja esta ordenado
+        while (p->prox != ant) {
+            //compara o valor atual com o proximo
+            if (p->m->valor > p->prox->m->valor) {
+                Medicamento *temp = p->m;
+                p->m = p->prox->m;
+                p->prox->m = temp;
+                t = 1; // sinaliza que ocorreu uma troca
             }
-            atual = atual->prox;
-        }
-        anterior = atual;
-    } while (trocou);
+            p = p->prox; // vai para o prox elemento
+        } 
+        ant = p; // guarda como novo final
+    } while (t);
 
-    return l;
+    return l; // retorna a lista ja ordenada
 }
 
-// Função para ordenar a lista pela data de vencimento dos medicamentos (bubble sort)
+// Função para ordenar a lista pela data de vencimento - bubble sort, mesma logica que a ordenação acima
 Lista *OrdenaListaVencimento(Lista *l) {
     if (l == NULL || l->prox == NULL) {
         return l;
     }
 
-    int trocou;
-    Lista *atual;
-    Lista *anterior = NULL;
+    int t;
+    Lista *p;
+    Lista *ant = NULL;
 
     do {
-        trocou = 0;
-        atual = l;
+        t = 0;
+        p = l;
 
-        while (atual->prox != anterior) {
-            // Compara as datas (ano, mês, dia)
-            if (atual->m->data[2] > atual->prox->m->data[2] ||
-                (atual->m->data[2] == atual->prox->m->data[2] && atual->m->data[1] > atual->prox->m->data[1]) ||
-                (atual->m->data[2] == atual->prox->m->data[2] && atual->m->data[1] == atual->prox->m->data[1] && atual->m->data[0] > atual->prox->m->data[0])) {
-                // Troca os medicamentos
-                Medicamento *temp = atual->m;
-                atual->m = atual->prox->m;
-                atual->prox->m = temp;
-                trocou = 1;
+        while (p->prox != ant) {
+            // Compara as datas ano, mes e dia
+            if (p->m->data[2] > p->prox->m->data[2] ||
+                (p->m->data[2] == p->prox->m->data[2] && p->m->data[1] > p->prox->m->data[1]) ||
+                (p->m->data[2] == p->prox->m->data[2] && p->m->data[1] == p->prox->m->data[1] && p->m->data[0] > p->prox->m->data[0])) {
+                
+                Medicamento *temp = p->m;
+                p->m = p->prox->m;
+                p->prox->m = temp;
+                t = 1;
             }
-            atual = atual->prox;
+            p = p->prox;
         }
-        anterior = atual;
-    } while (trocou);
+        ant = p;
+    } while (t);
 
     return l;
 }
